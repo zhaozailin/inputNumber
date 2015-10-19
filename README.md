@@ -1,11 +1,11 @@
 # inputNumber
 限制input内容为多种数字形式
 
-## 安装
+## 安装(不依赖任何第三方)
 1. 通用形式：`<script src="inputNumber.js"></script>`
 2. 支持AMD
 
-## 使用方式(不依赖任何第三方)
+## 使用方式
 `<input type="text" id="test">`<br>
 `inputNumber.init(window.document.getElementById("test"))`
 
