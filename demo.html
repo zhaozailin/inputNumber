@@ -2,14 +2,41 @@
 <html>
 <head lang="en">
   <meta charset="UTF-8">
-  <title></title>
+  <title>测试inputNumber</title>
 </head>
 <body>
-  <input type="text" id="test">
+  <h2>通过id单个绑定，配置信息：{intSize : 4}</h2>
+  <input type="text" id="t1">
+
+  <h2>通过name批量绑定，配置信息：{intSize : 3}</h2>
+  <input type="text" name="t2">
+  <input type="text" name="t2">
+
+  <h3 style="color: #ff984c" id="time"></h3>
 
   <script src="inputNumber.js"></script>
   <script>
-    inputNumber.init(window.document.getElementById("test"), {intSize : 3});
+    inputNumber.init(window.document.getElementById("t1"), {intSize : 4});
+    setTimeout(function() {
+      inputNumber.clear(window.document.getElementById("t1"));
+    }, 10000)
+
+    inputNumber.init(window.document.getElementsByName("t2"), {intSize : 3});
+    setTimeout(function() {
+      inputNumber.clear(window.document.getElementsByName("t2"));
+    }, 10000)
+
+    var i = 10;
+    var interval = setInterval(function() {
+      if (i === 0) {
+        clearInterval(interval);
+        document.getElementById("time").innerText = "效果已解除";
+      }
+      else {
+        document.getElementById("time").innerText = i + "秒后效果解除";
+        i--;
+      }
+    }, 1000);
   </script>
 </body>
 </html>

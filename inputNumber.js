@@ -12,9 +12,6 @@
         };
     }
 
-    // 可以输入的键：数字、退格、删除、左右、home、end
-    var enableKey = [48,49,50,51,52,53,54,55,56,57,8,46,37,39,35,36];
-
     // 阻止事件发生
     var preventDefault = function(e) {
         if (e.preventDefault) {
@@ -70,7 +67,7 @@
     };
 
     // 处理keydown
-    var keyDownEventListener = function(e) {
+    var keyDownEventListener = function(e, curConfig, curEnableKeys) {
         var which = e.charCode ? e.charCode : e.keyCode;
         var target = e.target ? e.target : e.srcElement;
 
@@ -81,7 +78,7 @@
             return;
         }
 
-        if (enableKey.indexOf(which) === -1) {
+        if (curEnableKeys.indexOf(which) === -1) {
             preventDefault(e);
             return;
         }
@@ -105,7 +102,7 @@
         var position = target.selectionStart !== undefined ? getNormalCaret(target) : getIECaret(target);
 
         // 有小数位&&小数位>=设置的长度&&只处理数字(功能键依然可用，比如删除)
-        if (digits.length === 2 && digits[1].length >= defaultConfig.decimalSize && (which >=48 && which <= 57)) {
+        if (digits.length === 2 && digits[1].length >= curConfig.decimalSize && (which >=48 && which <= 57)) {
 
             // 非勾选内容且光标位于小数点之后时，禁止输入
             if (typeof position === "number" && position > digits[0].length) {
@@ -115,10 +112,10 @@
         }
 
         // 整数位不超过指定长度
-        if (digits.length > 0 && digits[0].length >= defaultConfig.intSize && (which >=48 && which <= 57)) {
+        if (digits.length > 0 && digits[0].length >= curConfig.intSize && (which >=48 && which <= 57)) {
 
             // 非勾选内容且光标位于小数点之后时，禁止输入
-            if (typeof position === "number" && position <= defaultConfig.intSize) {
+            if (typeof position === "number" && position <= curConfig.intSize) {
                 preventDefault(e);
                 return;
             }
@@ -126,7 +123,7 @@
     };
 
     // 处理keyup
-    var keyUpEventListener = function(e) {
+    var keyUpEventListener = function(e, curConfig) {
         var target = e.target ? e.target : e.srcElement;
         var digits = target.value.split(".");
 
@@ -147,8 +144,8 @@
         }
 
         // 整数位不超过指定长度：当勾选了小数点，并将其替换为整数时的保险措施
-        else if (digits.length > 0 && digits[0].length > defaultConfig.intSize) {
-            target.value = target.value.substring(digits[0].length - defaultConfig.intSize);
+        else if (digits.length > 0 && digits[0].length > curConfig.intSize) {
+            target.value = target.value.substring(digits[0].length - curConfig.intSize);
         }
     };
 
@@ -157,74 +154,153 @@
         preventDefault(e);
     };
 
-    // 默认配置
-    var defaultConfig = {
+    // dom与事件监听的映射关系
+    var eventMap = [];
 
-        // 是否可为负
-        negative: true,
+    // 处理单个dom
+    var handlePerDom = function(dom, curConfig, curEnableKeys) {
 
-        // 是否可为小数
-        decimal: true,
+        // 处理keyDown事件
+        var keyDownEvent = (function(curConfig, curEnableKeys){
+            return function(e) {
+                keyDownEventListener(e, curConfig, curEnableKeys);
+            };
+        })(curConfig, curEnableKeys);
 
-        // 整数位数
-        intSize: 12,
+        // 处理keyUp事件
+        var keyUpEvent = (function(curConfig){
+            return function(e) {
+                keyUpEventListener(e, curConfig);
+            };
+        })(curConfig, curEnableKeys);
 
-        // 小数位数
-        decimalSize: 4
+        if (dom.addEventListener) {
+            dom.addEventListener("drop", dropEventListener, false);
+            dom.addEventListener("keydown", keyDownEvent, false);
+            dom.addEventListener("keyup", keyUpEvent, false);
+        }
+
+        // 支持IE
+        else {
+            dom.attachEvent("ondrop", dropEventListener);
+            dom.attachEvent("onkeydown", keyDownEvent);
+            dom.attachEvent("onkeyup", keyUpEvent);
+        }
+
+        // 保存dom与事件监听映射关系
+        var domEvent = {dom: dom, keyDownEvent: keyDownEvent, keyUpEvent: keyUpEvent};
+        eventMap.push(domEvent);
+    };
+
+    // 初始化配置信息
+    var initConfig = function(config) {
+
+        // 默认配置
+        var defaultConfig = {
+
+            // 是否可为负
+            negative: true,
+
+            // 是否可为小数
+            decimal: true,
+
+            // 整数位数
+            intSize: 12,
+
+            // 小数位数
+            decimalSize: 4
+        };
+
+        // 组装自定义配置与当前默认配置
+        if (config) {
+            for (var attr in config) {
+                if (config.hasOwnProperty(attr)) {
+                    defaultConfig[attr] = config[attr];
+                }
+            }
+        }
+
+        return defaultConfig;
+    };
+
+    // 初始化可用键位
+    var initEnableKeys = function(config) {
+
+        // 可以输入的键：数字、退格、删除、左右、home、end
+        var enableKeys = [48,49,50,51,52,53,54,55,56,57,8,46,37,39,35,36];
+
+        // 可为负数(189,firefox:173)
+        if (config.negative) {
+            enableKeys.push(189);
+            enableKeys.push(173);
+        }
+
+        // 可为小数(190)
+        if (config.decimal) {
+            enableKeys.push(190);
+        }
+
+        return enableKeys;
+    };
+
+    // 解绑响应事件
+    var clearPerDom = function(dom) {
+        for (var i = 0; i < eventMap.length; i++) {
+            if (dom === eventMap[i].dom) {
+                if (dom.removeEventListener) {
+                    dom.removeEventListener("drop", dropEventListener, false);
+                    dom.removeEventListener("keydown", eventMap[i].keyDownEvent, false);
+                    dom.removeEventListener("keyup", eventMap[i].keyUpEvent, false);
+                }
+
+                // 支持IE
+                else {
+                    dom.detachEvent("ondrop", dropEventListener);
+                    dom.detachEvent("onkeydown", eventMap[i].keyDownEvent);
+                    dom.detachEvent("onkeyup", eventMap[i].keyUpEvent);
+                }
+            }
+        }
+
+        // TODO 从集合中删除映射关系
+
     };
 
     var inputNumber = {
 
         // 初始化
-        init: function(dom, config) {
+        init: function(domObj, config) {
 
-            // 组装自定义配置与默认配置
-            if (config) {
-                for (var attr in config) {
-                    if (config.hasOwnProperty(attr)) {
-                        defaultConfig[attr] = config[attr];
-                    }
+            // 初始化配置信息
+            var curConfig = initConfig(config);
+
+            // 初始化可用键位
+            var curEnableKeys = initEnableKeys(curConfig);
+
+            // 判断dom是单个还是多个
+            // 多个
+            if (domObj instanceof NodeList) {
+                for (var i = 0; i < domObj.length; i++) {
+                    handlePerDom(domObj[i], curConfig, curEnableKeys);
                 }
             }
-
-            // 可为负数(189,firefox:173)
-            if (defaultConfig.negative) {
-                enableKey.push(189);
-                enableKey.push(173);
-            }
-
-            // 可为小数(190)
-            if (defaultConfig.decimal) {
-                enableKey.push(190);
-            }
-
-            if (dom.addEventListener) {
-                dom.addEventListener("drop", dropEventListener, false);
-                dom.addEventListener("keydown", keyDownEventListener, false);
-                dom.addEventListener("keyup", keyUpEventListener, false);
-            }
-
-            // 支持IE
             else {
-                dom.attachEvent("ondrop", dropEventListener);
-                dom.attachEvent("onkeydown", keyDownEventListener);
-                dom.attachEvent("onkeyup", keyUpEventListener);
+                handlePerDom(domObj, curConfig, curEnableKeys);
             }
         },
 
         // 清理事件监听
-        clear : function(dom) {
-            if (dom.removeEventListener) {
-                dom.removeEventListener("drop", dropEventListener, false);
-                dom.removeEventListener("keydown", keyDownEventListener, false);
-                dom.removeEventListener("keyup", keyUpEventListener, false);
-            }
+        clear : function(domObj) {
 
-            // 支持IE
+            // 判断dom是单个还是多个
+            // 多个
+            if (domObj instanceof NodeList) {
+                for (var i = 0; i < domObj.length; i++) {
+                    clearPerDom(domObj[i]);
+                }
+            }
             else {
-                dom.detachEvent("ondrop", dropEventListener);
-                dom.detachEvent("onkeydown", keyDownEventListener);
-                dom.detachEvent("onkeyup", keyUpEventListener);
+                clearPerDom(domObj);
             }
         }
     };
