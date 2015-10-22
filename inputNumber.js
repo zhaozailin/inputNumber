@@ -279,7 +279,7 @@
 
             // 判断dom是单个还是多个
             // 多个
-            if (domObj instanceof NodeList) {
+            if (domObj.tagName === undefined) {
                 for (var i = 0; i < domObj.length; i++) {
                     handlePerDom(domObj[i], curConfig, curEnableKeys);
                 }
@@ -294,7 +294,7 @@
 
             // 判断dom是单个还是多个
             // 多个
-            if (domObj instanceof NodeList) {
+            if (domObj.tagName === undefined) {
                 for (var i = 0; i < domObj.length; i++) {
                     clearPerDom(domObj[i]);
                 }
