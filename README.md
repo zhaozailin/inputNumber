@@ -8,7 +8,7 @@
 ## 使用方式
 `<input type="text" id="t1">`<br>
 `<input type="text" name="t2">`<br>
-`inputNumber.init(window.document.getElementById("t1"))`
+`inputNumber.init(window.document.getElementById("t1"))`<br>
 `inputNumber.init(window.document.getElementsByName("t2"))`
 
 ## API
