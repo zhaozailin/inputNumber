@@ -9,7 +9,11 @@
 `<input type="text" id="t1">`<br>
 `<input type="text" name="t2">`<br>
 `inputNumber.init(window.document.getElementById("t1"));`<br>
-`inputNumber.init(window.document.getElementsByName("t2"));`
+`inputNumber.init(window.document.getElementsByName("t2"));`<br>
+
+<b>支持jquery选择器</b><br>
+`inputNumber.init($("#t1"));`<br>
+`inputNumber.init($("input[name=t2]"));`<br>
 
 ## API
 ### init(dom, [config]);
