@@ -277,30 +277,51 @@
             // 初始化可用键位
             var curEnableKeys = initEnableKeys(curConfig);
 
-            // 判断dom是单个还是多个
-            // 多个
-            if (domObj.tagName === undefined) {
+            // 判断是否为jquery对象
+            // jquery对象
+            if (jQuery && domObj instanceof jQuery) {
                 for (var i = 0; i < domObj.length; i++) {
-                    handlePerDom(domObj[i], curConfig, curEnableKeys);
+                    handlePerDom(domObj.eq(i)[0], curConfig, curEnableKeys);
                 }
             }
+
+            // 原生dom
             else {
-                handlePerDom(domObj, curConfig, curEnableKeys);
+                // 判断dom是单个还是多个
+                // 多个
+                if (domObj.tagName === undefined) {
+                    for (var i = 0; i < domObj.length; i++) {
+                        handlePerDom(domObj[i], curConfig, curEnableKeys);
+                    }
+                }
+                else {
+                    handlePerDom(domObj, curConfig, curEnableKeys);
+                }
             }
         },
 
         // 清理事件监听
-        clear : function(domObj) {
+        clear: function(domObj) {
 
-            // 判断dom是单个还是多个
-            // 多个
-            if (domObj.tagName === undefined) {
+            // jquery对象
+            if (jQuery && domObj instanceof jQuery) {
                 for (var i = 0; i < domObj.length; i++) {
-                    clearPerDom(domObj[i]);
+                    clearPerDom(domObj.eq(i)[0]);
                 }
             }
+
+            // 原生
             else {
-                clearPerDom(domObj);
+                // 判断dom是单个还是多个
+                // 多个
+                if (domObj.tagName === undefined) {
+                    for (var i = 0; i < domObj.length; i++) {
+                        clearPerDom(domObj[i]);
+                    }
+                }
+                else {
+                    clearPerDom(domObj);
+                }
             }
         }
     };

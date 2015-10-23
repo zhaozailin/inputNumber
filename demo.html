@@ -3,6 +3,7 @@
 <head lang="en">
   <meta charset="UTF-8">
   <title>测试inputNumber</title>
+  <script src="jquery.js"></script>
 </head>
 <body>
   <h2>通过id单个绑定，配置信息：{intSize : 4}</h2>
@@ -14,28 +15,35 @@
 
   <h3 style="color: #ff984c" id="time"></h3>
 
-  <h3 style="color: #ff984c">10秒后效果解除</h3>
-
   <script src="inputNumber.js"></script>
   <script>
-    inputNumber.init(window.document.getElementById("t1"), {intSize : 4});
+
+    // 原生对象
+//    var t1 = window.document.getElementById("t1");
+//    var t2 = window.document.getElementsByName("t2");
+
+    // jquery对象
+    var t1 = $("#t1");
+    var t2 = $("input[name=t2]");
+
+    inputNumber.init(t1, {intSize : 4});
     setTimeout(function() {
-      inputNumber.clear(window.document.getElementById("t1"));
+      inputNumber.clear(t1);
     }, 10000)
 
-    inputNumber.init(window.document.getElementsByName("t2"), {intSize : 3});
+    inputNumber.init(t2, {intSize : 3});
     setTimeout(function() {
-      inputNumber.clear(window.document.getElementsByName("t2"));
+      inputNumber.clear(t2);
     }, 10000)
 
     var i = 10;
     var interval = setInterval(function() {
       if (i === 0) {
         clearInterval(interval);
-        document.getElementById("time").innerText = "效果已解除";
+        document.getElementById("time").innerHTML = "效果已解除";
       }
       else {
-        document.getElementById("time").innerText = i + "秒后效果解除";
+        document.getElementById("time").innerHTML = i + "秒后效果解除";
         i--;
       }
     }, 1000);
