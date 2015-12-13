@@ -84,7 +84,7 @@
         }
 
         // 小数点不超过2个
-        if (which === 190 && target.value.indexOf(".") !== -1) {
+        if ((which === 190 || which === 110) && target.value.indexOf(".") !== -1) {
             preventDefault(e);
             return;
         }
@@ -102,7 +102,7 @@
         var position = target.selectionStart !== undefined ? getNormalCaret(target) : getIECaret(target);
 
         // 有小数位&&小数位>=设置的长度&&只处理数字(功能键依然可用，比如删除)
-        if (digits.length === 2 && digits[1].length >= curConfig.decimalSize && (which >=48 && which <= 57)) {
+        if (digits.length === 2 && digits[1].length >= curConfig.decimalSize && ((which >=48 && which <= 57) || (which >=96 && which <= 105))) {
 
             // 非勾选内容且光标位于小数点之后时，禁止输入
             if (typeof position === "number" && position > digits[0].length) {
@@ -112,7 +112,7 @@
         }
 
         // 整数位不超过指定长度
-        if (digits.length > 0 && digits[0].length >= curConfig.intSize && (which >=48 && which <= 57)) {
+        if (digits.length > 0 && digits[0].length >= curConfig.intSize && ((which >=48 && which <= 57) || (which >=96 && which <= 105))) {
 
             // 非勾选内容且光标位于小数点之后时，禁止输入
             if (typeof position === "number" && position <= curConfig.intSize) {
@@ -227,7 +227,7 @@
     var initEnableKeys = function(config) {
 
         // 可以输入的键：数字、退格、删除、左右、home、end
-        var enableKeys = [48,49,50,51,52,53,54,55,56,57,8,46,37,39,35,36];
+        var enableKeys = [48,49,50,51,52,53,54,55,56,57,8,46,37,39,35,36,96,97,98,99,100,101,102,103,104,105];
 
         // 可为负数(189,firefox:173)
         if (config.negative) {
@@ -235,9 +235,10 @@
             enableKeys.push(173);
         }
 
-        // 可为小数(190)
+        // 可为小数(190、110)
         if (config.decimal) {
             enableKeys.push(190);
+            enableKeys.push(110);
         }
 
         return enableKeys;
