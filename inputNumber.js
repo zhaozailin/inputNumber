@@ -71,6 +71,12 @@
         var which = e.charCode ? e.charCode : e.keyCode;
         var target = e.target ? e.target : e.srcElement;
 
+        // 屏蔽shift、ctrl键
+        if (e.shiftKey || e.ctrlKey) {
+            preventDefault(e);
+            return;
+        }
+
         // 从根本上禁止输入中文标点，但是会漏掉第一个，所以需要keyup事件配合使用
         if (which === 229) {
             target.value = target.value.replace(/[^\x00-\xff]/g, "");
