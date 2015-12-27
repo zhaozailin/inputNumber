@@ -132,7 +132,7 @@
     var keyUpEventListener = function(e, curConfig) {
         var target = e.target ? e.target : e.srcElement;
         var digits = target.value.split(".");
-        console.log(target.value);
+        
         // 删除输入的双字节字符
         if (/[^\x00-\xff]/g.test(target.value)) {
             target.value = target.value.replace(/[^\x00-\xff]/g, "");
@@ -141,7 +141,7 @@
         // 删除中文输入法下按住shift+另一个键出现的特殊字符：~@#%&*+{}|
         else if (target.value.match(/~|@|#|%|&|\*|\+|\{|\}|\|/g)) {
             var matchChar = target.value.match(/~|@|#|%|&|\*|\+|\{|\}|\|/g);
-            target.value = target.value.replace(matchChar, "");
+            target.value = target.value.replace(new RegExp(matchChar[0], "g"), "");
         }
 
         // 删除与-同一键位的_
