@@ -141,7 +141,7 @@
         // 删除中文输入法下按住shift+另一个键出现的特殊字符：~@#%&*+{}|
         else if (target.value.match(/~|@|#|%|&|\*|\+|\{|\}|\|/g)) {
             var matchChar = target.value.match(/~|@|#|%|&|\*|\+|\{|\}|\|/g);
-            target.value = target.value.replace(new RegExp(matchChar[0], "g"), "");
+            target.value = target.value.replace(new RegExp("\\" + matchChar[0], "g"), "");
         }
 
         // 删除与-同一键位的_
