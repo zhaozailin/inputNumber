@@ -139,14 +139,14 @@
         }
 
         // 删除中文输入法下按住shift+另一个键出现的特殊字符：~@#%&*+{}|
-        else if (target.value.match(/~|@|-|#|%|&|\*|\+|\{|\}|\|/g)) {
+        else if (target.value.match(/~|@|#|%|&|\*|\+|\{|\}|\|/g)) {
             var matchChar = target.value.match(/~|@|#|%|&|\*|\+|\{|\}|\|/g);
             target.value = target.value.replace(new RegExp("\\" + matchChar[0], "g"), "");
+        }
 
-            // 如果输入不允许为-，则同时要删掉-号
-            if (!curConfig.negative) {
-                target.value = target.value.replace(/-/g, "");
-            }
+        // 如果输入不允许为-，则同时要删掉-号(在中文输入法下，依然能输入的-号)
+        else if (target.value.match(/-/g) && !curConfig.negative) {
+            target.value = target.value.replace(/-/g, "");
         }
 
         // 删除与-同一键位的_
