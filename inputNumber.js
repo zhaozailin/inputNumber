@@ -129,7 +129,7 @@
     };
 
     // 处理keyup
-    var keyUpEventListener = function(e, curConfig) {
+    var keyUpEventListener = function(e, curConfig, hasEqual) {
         var target = e.target ? e.target : e.srcElement;
         var digits = target.value.split(".");
         
@@ -139,9 +139,14 @@
         }
 
         // 删除中文输入法下按住shift+另一个键出现的特殊字符：~@#%&*+{}|
-        else if (target.value.match(/~|@|=|#|%|&|\*|\+|\{|\}|\|/g)) {
-            var matchChar = target.value.match(/~|@|=|#|%|&|\*|\+|\{|\}|\|/g);
+        else if (target.value.match(/~|@|#|%|&|\*|\+|\{|\}|\|/g)) {
+            var matchChar = target.value.match(/~|@|#|%|&|\*|\+|\{|\}|\|/g);
             target.value = target.value.replace(new RegExp("\\" + matchChar[0], "g"), "");
+        }
+
+        // 处理中文输入法下的等号
+        else if (!hasEqual && target.value.match(/=/g)) {
+            target.value = target.value.replace(new RegExp("\\" + target.value.match(/=/g)[0], "g"), "");
         }
 
         // 如果输入不允许为-，则同时要删掉-号(在中文输入法下，依然能输入的-号)
@@ -175,7 +180,7 @@
     var eventMap = [];
 
     // 处理单个dom
-    var handlePerDom = function(dom, curConfig, curEnableKeys) {
+    var handlePerDom = function(dom, curConfig, curEnableKeys, hasEqual) {
 
         // 处理keyDown事件
         var keyDownEvent = (function(curConfig, curEnableKeys){
@@ -185,11 +190,11 @@
         })(curConfig, curEnableKeys);
 
         // 处理keyUp事件
-        var keyUpEvent = (function(curConfig){
+        var keyUpEvent = (function(curConfig, curEnableKeys, hasEqual){
             return function(e) {
-                keyUpEventListener(e, curConfig);
+                keyUpEventListener(e, curConfig, hasEqual);
             };
-        })(curConfig, curEnableKeys);
+        })(curConfig, curEnableKeys, hasEqual);
 
         if (dom.addEventListener) {
             dom.addEventListener("drop", dropEventListener, false);
@@ -287,7 +292,7 @@
     var inputNumber = {
 
         // 初始化
-        init: function(domObj, config) {
+        init: function(domObj, config, hasEqual) {
 
             // 初始化配置信息
             var curConfig = initConfig(config);
@@ -299,7 +304,7 @@
             // jquery对象
             if (jQuery && domObj instanceof jQuery) {
                 for (var i = 0; i < domObj.length; i++) {
-                    handlePerDom(domObj.eq(i)[0], curConfig, curEnableKeys);
+                    handlePerDom(domObj.eq(i)[0], curConfig, curEnableKeys, hasEqual);
                 }
             }
 
@@ -309,11 +314,11 @@
                 // 多个
                 if (domObj.tagName === undefined) {
                     for (var i = 0; i < domObj.length; i++) {
-                        handlePerDom(domObj[i], curConfig, curEnableKeys);
+                        handlePerDom(domObj[i], curConfig, curEnableKeys, hasEqual);
                     }
                 }
                 else {
-                    handlePerDom(domObj, curConfig, curEnableKeys);
+                    handlePerDom(domObj, curConfig, curEnableKeys, hasEqual);
                 }
             }
         },
