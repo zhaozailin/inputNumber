@@ -84,7 +84,7 @@
             return;
         }
 
-        if (curEnableKeys.indexOf(which) === -1) {
+        if (curEnableKeys.indexOf(which) === -1 && which !== 13) {
             preventDefault(e);
             return;
         }
