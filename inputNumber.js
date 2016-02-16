@@ -72,9 +72,17 @@
         var target = e.target ? e.target : e.srcElement;
 
         // 屏蔽shift、ctrl键
-        if (e.shiftKey || e.ctrlKey) {
+        if (e.shiftKey) {
             preventDefault(e);
             return;
+        }
+        if (e.ctrlKey) {
+
+            // 开放ctrl+c、ctrl+v、ctrl+x
+            if (which !== 67 && which !== 86 && which !== 88) {
+                preventDefault(e);
+                return;
+            }
         }
 
         // 从根本上禁止输入中文标点，但是会漏掉第一个，所以需要keyup事件配合使用
@@ -84,7 +92,7 @@
             return;
         }
 
-        if (curEnableKeys.indexOf(which) === -1 && which !== 13) {
+        if (curEnableKeys.indexOf(which) === -1 && which !== 13 && !e.ctrlKey) {
             preventDefault(e);
             return;
         }
@@ -168,6 +176,43 @@
         // 整数位不超过指定长度：当勾选了小数点，并将其替换为整数时的保险措施
         else if (digits.length > 0 && digits[0].length > curConfig.intSize) {
             target.value = target.value.substring(digits[0].length - curConfig.intSize);
+        }
+
+        // 针对粘贴最后的防线，将非数值的内容清空
+        if (e.ctrlKey) {
+            if (isNaN(target.value)) {
+                target.value = "";
+            }
+            else {
+                var newIntStr = "";
+                var newDecimalStr = "";
+
+                // 处理过长的整数
+                var oldIntStr = target.value.split(".")[0];
+                newIntStr = oldIntStr;
+                if (oldIntStr.length > curConfig.intSize) {
+                    newIntStr = oldIntStr.substring(0, curConfig.intSize);
+                }
+
+                // 处理过长的小数
+                if (target.value.split(".").length === 2) {
+                    var oldDecimalStr = target.value.split(".")[1];
+                    newDecimalStr = oldDecimalStr;
+
+                    // 1.配置中无小数
+                    if (!curConfig.decimal) {
+                        newDecimalStr = ""
+                    }
+
+                    // 2.配置中有小数
+                    else if (curConfig.decimal && oldDecimalStr.length > curConfig.decimalSize) {
+                        newDecimalStr = oldDecimalStr.substring(0, curConfig.decimalSize);
+                    }
+                }
+
+                // 新值
+                target.value = newIntStr + (newDecimalStr ? "." : "") + newDecimalStr;
+            }
         }
     };
 
