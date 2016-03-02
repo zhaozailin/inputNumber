@@ -180,6 +180,10 @@
 
         // 针对粘贴最后的防线，将非数值的内容清空
         if (e.ctrlKey) {
+
+            // 删除掉英文逗号
+            target.value = target.value.replace(/,/g, "");
+
             if (isNaN(target.value)) {
                 target.value = "";
             }
@@ -349,6 +353,12 @@
             // jquery对象
             if (jQuery && domObj instanceof jQuery) {
                 for (var i = 0; i < domObj.length; i++) {
+
+                    // 禁用右键菜单
+                    domObj.eq(i).bind("contextmenu", function(e) {
+                        e.preventDefault();
+                    });
+
                     handlePerDom(domObj.eq(i)[0], curConfig, curEnableKeys, hasEqual);
                 }
             }
