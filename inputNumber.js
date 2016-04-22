@@ -104,7 +104,7 @@
         }
 
         // -不超过2位
-        if ((which === 189 || which === 173) && (target.value.indexOf("-") !== -1)) {
+        if ((which === 109 || which === 189 || which === 173) && (target.value.indexOf("-") !== -1)) {
             preventDefault(e);
             return;
         }
@@ -302,7 +302,13 @@
 
         // 可为负数(189,firefox:173)
         if (config.negative) {
+
+            // 大键盘的负号
             enableKeys.push(189);
+
+            // 小键盘的负号
+            enableKeys.push(109);
+
             enableKeys.push(173);
         }
 
