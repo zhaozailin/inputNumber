@@ -1,5 +1,11 @@
 (function() {
 
+    // 每次keydown都更新的which，用来对比响应的keyup中的which，如果up和down的which不统一，则进行特殊处理
+    var lastKeyDownWhich = -1;
+
+    // 每次keydown的光标位置
+    var lastPosition = -1;
+
     // 兼容IE8的indexOf
     if (!Array.prototype.indexOf) {
         Array.prototype.indexOf = function (el) {
@@ -11,6 +17,23 @@
             return -1;
         };
     }
+
+    var _setSelectionRange = function(input, selectionStart, selectionEnd) {
+        if (input.setSelectionRange) {
+            input.setSelectionRange(selectionStart, selectionEnd);
+        }
+        else if (input.createTextRange) {
+            var range = input.createTextRange();
+            range.collapse(true);
+            range.moveEnd('character', selectionEnd);
+            range.moveStart('character', selectionStart);
+            range.select();
+        }
+    };
+
+    var _setCaretToPos = function(input, pos) {
+        _setSelectionRange(input, pos, pos);
+    };
 
     // 阻止事件发生
     var preventDefault = function(e) {
@@ -71,6 +94,15 @@
         var which = e.charCode ? e.charCode : e.keyCode;
         var target = e.target ? e.target : e.srcElement;
 
+        // 更新最新的which
+        lastKeyDownWhich = which;
+
+        // 计算光标位置
+        var position = target.selectionStart !== undefined ? getNormalCaret(target) : getIECaret(target);
+
+        // 更新最新光标位置
+        lastPosition = position;
+
         // 屏蔽shift、ctrl键
         if (e.shiftKey) {
             preventDefault(e);
@@ -112,9 +144,6 @@
         // 小数位不超过指定长度
         var digits = target.value.split(".");
 
-        // 计算光标位置
-        var position = target.selectionStart !== undefined ? getNormalCaret(target) : getIECaret(target);
-
         // 有小数位&&小数位>=设置的长度&&只处理数字(功能键依然可用，比如删除)
         if (digits.length === 2 && digits[1].length >= curConfig.decimalSize && ((which >=48 && which <= 57) || (which >=96 && which <= 105))) {
 
@@ -138,6 +167,7 @@
 
     // 处理keyup
     var keyUpEventListener = function(e, curConfig, hasEqual) {
+        var which = e.charCode ? e.charCode : e.keyCode;
         var target = e.target ? e.target : e.srcElement;
         var digits = target.value.split(".");
         
@@ -176,6 +206,40 @@
         // 整数位不超过指定长度：当勾选了小数点，并将其替换为整数时的保险措施
         else if (digits.length > 0 && digits[0].length > curConfig.intSize) {
             target.value = target.value.substring(digits[0].length - curConfig.intSize);
+        }
+
+        // 处理特殊输入法下的keyup事件
+        else if (lastKeyDownWhich === 229 && ((which >= 96 && which <= 105) || (which >= 48 && which <= 57) || which === 190 || which === 189 || which === 109 || which === 110)) {
+
+            // 1.数字0-9
+            if (which >= 48 && which <= 57) {
+                target.value = target.value.substring(0, lastPosition) + "" + (which - 48) + "" + target.value.substring(lastPosition);
+
+                // 移动光标
+                _setCaretToPos(target, lastPosition + 1);
+            }
+            else if (which >= 96 && which <= 105) {
+                target.value = target.value.substring(0, lastPosition) + "" + (which - 96) + "" + target.value.substring(lastPosition);
+
+                // 移动光标
+                _setCaretToPos(target, lastPosition + 1);
+            }
+
+            // 2.小数点
+            else if (which === 190 || which === 110) {
+                target.value = target.value.substring(0, lastPosition) + "." + target.value.substring(lastPosition);
+
+                // 移动光标
+                _setCaretToPos(target, lastPosition + 1);
+            }
+
+            // 2.负号
+            else if (which === 189 || which === 109) {
+                target.value = target.value.substring(0, lastPosition) + "-" + target.value.substring(lastPosition);
+
+                // 移动光标
+                _setCaretToPos(target, lastPosition + 1);
+            }
         }
 
         // 针对粘贴最后的防线，将非数值的内容清空
