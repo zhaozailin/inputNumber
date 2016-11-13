@@ -235,10 +235,10 @@
 
             // 2.负号
             else if (which === 189 || which === 109) {
-                target.value = target.value.substring(0, lastPosition) + "-" + target.value.substring(lastPosition);
+              //  target.value = target.value.substring(0, lastPosition) + "-" + target.value.substring(lastPosition);
 
                 // 移动光标
-                _setCaretToPos(target, lastPosition + 1);
+              //  _setCaretToPos(target, lastPosition + 1);
             }
         }
 
