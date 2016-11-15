@@ -136,7 +136,8 @@
         }
 
         // -不超过2位
-        if ((which === 109 || which === 189 || which === 173) && (target.value.indexOf("-") !== -1)) {
+        var selectedText = window.getSelection().toString();
+        if ((which === 109 || which === 189 || which === 173) && (target.value.indexOf("-") !== -1) && !selectedText) {
             preventDefault(e);
             return;
         }
