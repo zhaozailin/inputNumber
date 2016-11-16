@@ -117,12 +117,13 @@
             }
         }
 
+        // FIXME 暂时放开限制，先让用户可以输入，以后再做优化
         // 从根本上禁止输入中文标点，但是会漏掉第一个，所以需要keyup事件配合使用
-        if (which === 229) {
-            target.value = target.value.replace(/[^\x00-\xff]/g, "");
-            preventDefault(e);
-            return;
-        }
+        // if (which === 229) {
+        //     target.value = target.value.replace(/[^\x00-\xff]/g, "");
+        //     preventDefault(e);
+        //     return;
+        // }
 
         if (curEnableKeys.indexOf(which) === -1 && which !== 13 && !e.ctrlKey) {
             preventDefault(e);
