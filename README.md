@@ -1,4 +1,4 @@
-# inputNumber
+# inputNumber v1.0
 限制input内容为多种数字形式
 
 
