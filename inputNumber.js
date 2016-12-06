@@ -117,12 +117,13 @@
             }
         }
 
+        // FIXME 暂时放开限制，先让用户可以输入，以后再做优化
         // 从根本上禁止输入中文标点，但是会漏掉第一个，所以需要keyup事件配合使用
-        if (which === 229) {
-            target.value = target.value.replace(/[^\x00-\xff]/g, "");
-            preventDefault(e);
-            return;
-        }
+        // if (which === 229) {
+        //     target.value = target.value.replace(/[^\x00-\xff]/g, "");
+        //     preventDefault(e);
+        //     return;
+        // }
 
         if (curEnableKeys.indexOf(which) === -1 && which !== 13 && !e.ctrlKey) {
             preventDefault(e);
@@ -136,7 +137,8 @@
         }
 
         // -不超过2位
-        if ((which === 109 || which === 189 || which === 173) && (target.value.indexOf("-") !== -1)) {
+        var selectedText = window.getSelection().toString();
+        if ((which === 109 || which === 189 || which === 173) && (target.value.indexOf("-") !== -1) && !selectedText) {
             preventDefault(e);
             return;
         }
@@ -235,10 +237,10 @@
 
             // 2.负号
             else if (which === 189 || which === 109) {
-                target.value = target.value.substring(0, lastPosition) + "-" + target.value.substring(lastPosition);
+              //  target.value = target.value.substring(0, lastPosition) + "-" + target.value.substring(lastPosition);
 
                 // 移动光标
-                _setCaretToPos(target, lastPosition + 1);
+              //  _setCaretToPos(target, lastPosition + 1);
             }
         }
 

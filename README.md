@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 # inputNumber-000000
+=======
+# inputNumber v1.0
+>>>>>>> 3044e3ebe6348279134b213a138e4bf2ab4481c5
 限制input内容为多种数字形式
+
 
 ## 安装(不依赖任何第三方)
 1. 通用形式：`<script src="inputNumber.js"></script>`
