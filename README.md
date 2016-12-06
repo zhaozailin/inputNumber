@@ -1,4 +1,4 @@
-# inputNumber
+# inputNumber-000000
 限制input内容为多种数字形式
 
 ## 安装(不依赖任何第三方)
