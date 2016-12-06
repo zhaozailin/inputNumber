@@ -1,7 +1,4 @@
-# inputNumber-9999999999999999999999999999999999
-=======
-# inputNumber v1.0
->>>>>>> 3044e3ebe6348279134b213a138e4bf2ab4481c5
+bbbbbbbbbbbbbbbbbbbbbbbbbbb
 限制input内容为多种数字形式
 
 
