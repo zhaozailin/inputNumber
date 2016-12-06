@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-# inputNumber-000000
+# inputNumber-9999999999999999999999999999999999
 =======
 # inputNumber v1.0
 >>>>>>> 3044e3ebe6348279134b213a138e4bf2ab4481c5
